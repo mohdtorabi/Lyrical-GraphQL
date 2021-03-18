@@ -1,48 +1,65 @@
-import React from 'react';
-import gql from 'graphql-tag';
+import React, {Component} from 'react';
 import { graphql } from 'react-apollo';
 import { Link } from 'react-router';
+import query from '../queries/fetchSongs';
+import gql from 'graphql-tag';
+import { render } from 'react-dom';
 
 
+class SongList extends Component {
 
-const SongList = (props) => {
-  console.log(props);
+  onSongDelete(id) {
+    this.props.mutate({variables: {id}})
+    // .then(()=> this.props.data.refetch());
+  }
 
 
   
-  if (!props.data.loading) {
-    console.log(props.data.songs[0].title);
+  renderSongs() {
+    return this.props.data.songs.map(({ id, title }) => {
+      return (
+        <li key={id} className="collection-item">
+          <Link to={`/songs/${id}`}>
+            {title}
+          </Link>
+          <i 
+          className="material-icons"
+          onClick={() => this.onSongDelete(id)}
+          >
+            delete
+          </i>
+        </li>
+      );
+    })
+  }
+  render() {
+    if (this.props.data.loading) { return <div>Loading...</div>;}
     return (
       <div>
-        <ul>
-          {props.data.songs.map(song => <li key={song.id} className="collection-item">{song.title}</li>)}
-        </ul>
-        <Link 
-          to="/songs/new"
-          className="btn-floating btn-large red right"
-        >
-          <i className="material-icons">add</i>
-        </Link>
-          
-      </div>
-      
+      <ul className="collection">
+        {this.renderSongs()}
+      </ul>
+      <Link
+      to="/songs/new"
+      className="btn-floating btn-large red right"
+      >
+        <i className="material-icons">add</i>
+      </Link>
+    </div>
     )
+    
   }
-  return <ul className="collection">Loading...</ul>
-  
-
-  
 }
 
-
-const query = gql`
-  {
-    songs {
+const mutation = gql`
+  mutation DeleteSong($id: ID){
+    deleteSong(id: $id) {
       id
-      title
     }
   }
 `;
 
-export default graphql(query)(SongList);
+
+
+export default graphql(mutation)(graphql(query)(SongList));
 

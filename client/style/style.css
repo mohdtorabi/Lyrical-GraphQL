@@ -2,3 +2,8 @@
   border: solid thin;
   margin: 20px;
 }
+
+.vote-box {
+  display: flex;
+  align-items: center;
+}
